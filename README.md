@@ -19,7 +19,7 @@ under the MIT license.
 
 ##Usage:
 
-**ipa_sign** takes an ipa file, provision file, and the name of the certificate in your keychain that you want to sign with.
+**ipa_sign** takes an ipa file, provision file, the name of the certificate in your keychain that you want to sign with, and optionally the output IPA filename.
 
     ~/Dropbox/Public/enterprise_builds rbronosky$ ./ipa_sign ~/Downloads/app.ipa ~/provisions/Huge_Enterprises.mobileprovision "iPhone Distribution: Huge Enterprises Inc."
     App has BundleIdentifier 'com.example.myapp' and BundleVersion 2.5
