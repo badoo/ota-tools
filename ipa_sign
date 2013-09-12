@@ -2,12 +2,6 @@
 
 # https://github.com/badoo/ota-tools 
 
-absolutePath() {
-    pushd `dirname $1` > /dev/null
-    echo $(pwd)/$(basename $1)
-    popd > /dev/null
-}
-
 printUsage() {
     echo "
     Usage: $(basename "$0") Application.ipa -p foo/bar.mobileprovision -c \"iPhone Distribution: Your Company\" [-o foo/output.ipa] [-i]
@@ -33,18 +27,18 @@ fi
 
 # Process args                    
 INSPECT_ONLY=false
-IPA_IN=$1
+IPA_IN="$1"
 OPTIND=2
 while getopts ``io:p:c:'' OPTION
 do                                
     case $OPTION in
         i)  INSPECT_ONLY=true 
             ;;
-        o)  IPA_OUT=$OPTARG
+        o)  IPA_OUT="$OPTARG"
             ;;
-        p)  PROV_PROFILE=$OPTARG
+        p)  PROV_PROFILE="$OPTARG"
             ;;
-        c)  CERT_NAME=$OPTARG
+        c)  CERT_NAME="$OPTARG"
             ;;
         ?)
             printUsage
@@ -71,11 +65,6 @@ if [[ ! ( # any of the following are not true
         exit 1;
 fi
 
-# Sanitise input
-IPA_IN=`absolutePath $IPA_IN`
-IPA_OUT=`absolutePath $IPA_OUT`
-PROV_PROFILE=`absolutePath $PROV_PROFILE`
-
 # Default output file
 if [ -z "$IPA_OUT" ]; then
     IPA_OUT="$(pwd)/$(basename $IPA_IN .ipa).resigned.ipa"
@@ -95,7 +84,7 @@ echo "App has BundleIdentifier '$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIde
 security cms -D -i Payload/*.app/embedded.mobileprovision > mobileprovision.plist
 echo "App has provision   '$(/usr/libexec/PlistBuddy -c "Print :Name" mobileprovision.plist)', which supports '$(/usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" mobileprovision.plist)'"
 if [[ ! ($INSPECT_ONLY == 1) ]]; then
-    security cms -D -i $PROV_PROFILE > provision.plist
+    security cms -D -i "$PROV_PROFILE" > provision.plist
     echo "Embedding provision '$(/usr/libexec/PlistBuddy -c "Print :Name" provision.plist)', which supports '$(/usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" provision.plist)'"
     rm -rf Payload/*.app/_CodeSignature Payload/*.app/CodeResources
     cp "$PROV_PROFILE" Payload/*.app/embedded.mobileprovision
